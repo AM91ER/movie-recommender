@@ -17,56 +17,43 @@ st.set_page_config(
 )
 
 # ===========================================
-# PATH CONFIGURATION - Works on both local and Streamlit Cloud
+# PATH CONFIGURATION - 
 # ===========================================
-def get_project_root():
-    """Find the project root directory."""
-    # Try multiple approaches to find the project root
-    
-    # Approach 1: Look for marker files/folders from current file location
-    current_file = os.path.abspath(__file__)
-    current_dir = os.path.dirname(current_file)
-    
-    # Go up from app/ directory to project root
-    parent_dir = os.path.dirname(current_dir)
-    
-    # Check if this looks like the project root
-    if os.path.exists(os.path.join(parent_dir, "data", "ml_ready")):
-        return parent_dir
-    
-    # Approach 2: Check common Streamlit Cloud paths
-    streamlit_paths = [
-        "/mount/src/movie-recommender",
-        "/app/movie-recommender",
-        "/home/appuser/movie-recommender",
-    ]
-    
-    for path in streamlit_paths:
-        if os.path.exists(os.path.join(path, "data", "ml_ready")):
-            return path
-    
-    # Approach 3: Search upward from current directory
-    search_dir = current_dir
-    for _ in range(5):  # Search up to 5 levels
-        if os.path.exists(os.path.join(search_dir, "data", "ml_ready")):
-            return search_dir
-        search_dir = os.path.dirname(search_dir)
-    
-    # Fallback: use parent of current file's directory
-    return parent_dir
+# Get the directory where app.py is located
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
-# Set paths
-PROJECT_ROOT = get_project_root()
+# Project root is one level up from app/
+PROJECT_ROOT = os.path.dirname(APP_DIR)
+
+# Define paths
 DATA_PATH = os.path.join(PROJECT_ROOT, "data", "ml_ready")
 MODELS_PATH = os.path.join(PROJECT_ROOT, "models")
 
+# Debug: Print paths to help troubleshoot (will show in Streamlit Cloud logs)
+print(f"APP_DIR: {APP_DIR}")
+print(f"PROJECT_ROOT: {PROJECT_ROOT}")
+print(f"DATA_PATH: {DATA_PATH}")
+print(f"DATA_PATH exists: {os.path.exists(DATA_PATH)}")
+
+# If paths don't exist, try Streamlit Cloud specific path
+if not os.path.exists(DATA_PATH):
+    PROJECT_ROOT = "/mount/src/movie-recommender"
+    DATA_PATH = os.path.join(PROJECT_ROOT, "data", "ml_ready")
+    MODELS_PATH = os.path.join(PROJECT_ROOT, "models")
+    print(f"Trying Streamlit Cloud path: {DATA_PATH}")
+    print(f"DATA_PATH exists now: {os.path.exists(DATA_PATH)}")
+
+# List contents to verify
+if os.path.exists(DATA_PATH):
+    print(f"Contents of DATA_PATH: {os.listdir(DATA_PATH)}")
+
 # TMDB API (optional - add your key for posters)
-TMDB_API_KEY = "f3adb516d0653f376c48d41ecc4f6551"  # Add your TMDB API key here
+TMDB_API_KEY = "f3adb516d0653f376c48d41ecc4f6551"
 TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 PLACEHOLDER_IMAGE = "https://via.placeholder.com/300x450/1a1a1a/808080?text=No+Poster"
 
 # ===========================================
-# CUSTOM CSS - Netflix Style
+# CUSTOM CSS 
 # ===========================================
 st.markdown("""
 <style>
@@ -204,9 +191,7 @@ def get_star_rating(rating):
     if rating is None or (isinstance(rating, float) and np.isnan(rating)):
         return "☆☆☆☆☆"
     rating = float(rating)
-    # Clamp to valid range
     rating = max(0.5, min(5.0, rating))
-    # Convert to 0-5 scale for stars
     full_stars = int(rating)
     half_star = 1 if (rating - full_stars) >= 0.5 else 0
     empty_stars = 5 - full_stars - half_star
@@ -276,7 +261,7 @@ def get_user_top_genres(_train_df, _movies_df, user_idx, top_n=3):
     return [g[0] for g in sorted_genres[:top_n]]
 
 # ===========================================
-# PREDICTION FUNCTION - Used by all methods
+# PREDICTION FUNCTION
 # ===========================================
 def predict_rating(user_idx, item_idx, svd_model):
     """Predict rating for a user-item pair using SVD."""
@@ -298,7 +283,7 @@ def predict_rating(user_idx, item_idx, svd_model):
     return np.clip(pred, 0.5, 5.0)
 
 # ===========================================
-# RECOMMENDATION FUNCTIONS - Now return predicted ratings
+# RECOMMENDATION FUNCTIONS
 # ===========================================
 def get_svd_recommendations(user_idx, svd_model, user_positive, n_items, k=10):
     """SVD recommendations with predicted ratings."""
@@ -327,11 +312,10 @@ def get_svd_recommendations(user_idx, svd_model, user_positive, n_items, k=10):
     
     top_k = np.argsort(preds_masked)[-k:][::-1]
     
-    # Return item_idx, predicted_rating, match_score (same as rating for SVD)
     results = []
     for item_idx in top_k:
         pred_rating = preds[item_idx]
-        results.append((item_idx, pred_rating, None))  # No separate match score for SVD
+        results.append((item_idx, pred_rating, None))
     
     return results
 
@@ -367,11 +351,10 @@ def get_content_recommendations(user_idx, svd_model, user_positive, genre_featur
     
     top_k = np.argsort(similarities)[-k:][::-1]
     
-    # Return item_idx, predicted_rating (from SVD), match_score (similarity)
     results = []
     for item_idx in top_k:
         pred_rating = predict_rating(user_idx, item_idx, svd_model)
-        match_score = similarities[item_idx] * 100  # Convert to percentage
+        match_score = similarities[item_idx] * 100
         results.append((int(item_idx), pred_rating, match_score))
     
     return results
@@ -388,7 +371,6 @@ def get_hybrid_recommendations(user_idx, svd_model, user_positive, genre_feature
     user_bias_dict = svd_model["user_bias"]
     item_bias_dict = svd_model["item_bias"]
     
-    # SVD predictions (actual ratings)
     if user_idx < len(user_factors):
         svd_preds = np.dot(user_factors[user_idx], item_factors[:n_items_local].T)
     else:
@@ -398,10 +380,8 @@ def get_hybrid_recommendations(user_idx, svd_model, user_positive, genre_feature
     svd_preds += np.array([item_bias_dict.get(i, 0) for i in range(n_items_local)])
     svd_preds = np.clip(svd_preds, 0.5, 5.0)
     
-    # Normalized SVD scores for ranking
     svd_scores = (svd_preds - 0.5) / 4.5
     
-    # Content-based scores
     liked_items = [i for i in seen if user_item_ratings.get(user_idx, {}).get(i, 0) >= 4.0]
     if not liked_items:
         liked_items = [i for i in list(seen)[:10] if i < n_items_local]
@@ -419,10 +399,8 @@ def get_hybrid_recommendations(user_idx, svd_model, user_positive, genre_feature
     else:
         cb_scores = np.zeros(n_items_local)
     
-    # Combined score for ranking
     hybrid_scores = alpha * svd_scores + (1 - alpha) * cb_scores
     
-    # Mask seen items
     hybrid_scores_masked = hybrid_scores.copy()
     for item in seen:
         if item < n_items_local:
@@ -430,11 +408,10 @@ def get_hybrid_recommendations(user_idx, svd_model, user_positive, genre_feature
     
     top_k = np.argsort(hybrid_scores_masked)[-k:][::-1]
     
-    # Return item_idx, predicted_rating (from SVD), match_score (hybrid percentage)
     results = []
     for item_idx in top_k:
-        pred_rating = svd_preds[item_idx]  # Actual predicted rating
-        match_score = hybrid_scores[item_idx] * 100  # Match percentage
+        pred_rating = svd_preds[item_idx]
+        match_score = hybrid_scores[item_idx] * 100
         results.append((int(item_idx), pred_rating, match_score))
     
     return results
@@ -449,7 +426,7 @@ def get_popularity_recommendations(user_positive, item_popularity, user_idx, svd
     for item_idx, pop_count in sorted_items:
         if item_idx not in seen:
             pred_rating = predict_rating(user_idx, item_idx, svd_model)
-            results.append((item_idx, pred_rating, pop_count))  # pop_count as "match score"
+            results.append((item_idx, pred_rating, pop_count))
             if len(results) >= k:
                 break
     
@@ -467,7 +444,6 @@ def render_movie_card(title, genres, pred_rating, match_score=None, is_popularit
     genre_list = str(genres).split("|")[:2]
     genre_display = " • ".join(genre_list)
     
-    # Format the score display
     rating_display = f"{pred_rating:.1f}"
     
     if is_popularity and match_score is not None:
@@ -521,6 +497,10 @@ def main():
         
     except Exception as e:
         st.error(f"❌ Error loading: {e}")
+        st.info(f"DATA_PATH: {DATA_PATH}")
+        st.info(f"DATA_PATH exists: {os.path.exists(DATA_PATH)}")
+        if os.path.exists(os.path.dirname(DATA_PATH)):
+            st.info(f"Parent contents: {os.listdir(os.path.dirname(DATA_PATH))}")
         return
     
     n_users = mappings["n_users"]
