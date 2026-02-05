@@ -4,11 +4,8 @@ import numpy as np
 import pickle
 from sklearn.metrics.pairwise import cosine_similarity
 import os
-import sys
 import requests
 from functools import lru_cache
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # ===========================================
 # CONFIGURATION
@@ -19,18 +16,57 @@ st.set_page_config(
     layout="wide"
 )
 
-# Paths - Relative to app.py location
-BASE_PATH = os.path.dirname(os.path.abspath(__file__))
-DATA_PATH = os.path.join(BASE_PATH, "..", "data", "ml_ready")
-MODELS_PATH = os.path.join(BASE_PATH, "..", "models")
+# ===========================================
+# PATH CONFIGURATION - Works on both local and Streamlit Cloud
+# ===========================================
+def get_project_root():
+    """Find the project root directory."""
+    # Try multiple approaches to find the project root
+    
+    # Approach 1: Look for marker files/folders from current file location
+    current_file = os.path.abspath(__file__)
+    current_dir = os.path.dirname(current_file)
+    
+    # Go up from app/ directory to project root
+    parent_dir = os.path.dirname(current_dir)
+    
+    # Check if this looks like the project root
+    if os.path.exists(os.path.join(parent_dir, "data", "ml_ready")):
+        return parent_dir
+    
+    # Approach 2: Check common Streamlit Cloud paths
+    streamlit_paths = [
+        "/mount/src/movie-recommender",
+        "/app/movie-recommender",
+        "/home/appuser/movie-recommender",
+    ]
+    
+    for path in streamlit_paths:
+        if os.path.exists(os.path.join(path, "data", "ml_ready")):
+            return path
+    
+    # Approach 3: Search upward from current directory
+    search_dir = current_dir
+    for _ in range(5):  # Search up to 5 levels
+        if os.path.exists(os.path.join(search_dir, "data", "ml_ready")):
+            return search_dir
+        search_dir = os.path.dirname(search_dir)
+    
+    # Fallback: use parent of current file's directory
+    return parent_dir
 
-# TMDB API 
-TMDB_API_KEY = "f3adb516d0653f376c48d41ecc4f6551" 
+# Set paths
+PROJECT_ROOT = get_project_root()
+DATA_PATH = os.path.join(PROJECT_ROOT, "data", "ml_ready")
+MODELS_PATH = os.path.join(PROJECT_ROOT, "models")
+
+# TMDB API (optional - add your key for posters)
+TMDB_API_KEY = "f3adb516d0653f376c48d41ecc4f6551"  # Add your TMDB API key here
 TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 PLACEHOLDER_IMAGE = "https://via.placeholder.com/300x450/1a1a1a/808080?text=No+Poster"
 
 # ===========================================
-# CUSTOM CSS 
+# CUSTOM CSS - Netflix Style
 # ===========================================
 st.markdown("""
 <style>
