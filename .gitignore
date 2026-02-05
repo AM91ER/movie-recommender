@@ -1,0 +1,121 @@
+# =============================================================================
+# CENIFLEX - Movie Recommendation System
+# .gitignore
+# =============================================================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# =============================================================================
+# Project Specific
+# =============================================================================
+
+# Raw data (too large for git)
+data/raw/
+
+# Processed data (can be regenerated)
+data/processed/
+data/ml_ready/
+
+# Trained models (too large for git)
+models/*.pkl
+models/*.npy
+models/*.npz
+artifacts/*.pkl
+
+# Large data files
+*.csv
+*.parquet
+*.pkl
+*.npy
+*.npz
+
+# Keep directory structure
+!data/.gitkeep
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/ml_ready/.gitkeep
+!models/.gitkeep
+!artifacts/.gitkeep
+
+# Secrets
+.env
+secrets.toml
+.streamlit/secrets.toml
+
+# Logs
+*.log
+logs/
