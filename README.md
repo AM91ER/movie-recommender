@@ -108,8 +108,8 @@ cinemax/
 
 ```bash
 # Clone the repository
-git clone https://github.com/AM91ER/ceniflex.git
-cd ceniflex
+git clone https://github.com/AM91ER/movie-recommender.git
+cd movie-recommender
 
 # Create virtual environment
 python -m venv venv
