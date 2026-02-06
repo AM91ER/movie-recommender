@@ -24,7 +24,6 @@ import numpy as np
 from typing import Dict, Any
 import sys
 import subprocess
-import pkg_resources
 
 # Ensure repo root is on sys.path so local package `src` is importable
 # (Streamlit Cloud often runs apps from a subdirectory which can omit
@@ -269,6 +268,7 @@ def full_pipeline(args: argparse.Namespace) -> None:
         repo_root = os.path.abspath(os.path.join(args.output_path, os.pardir, os.pardir))
         req_path = os.path.join(repo_root, "requirements.txt")
         try:
+            import pkg_resources
             dists = sorted(pkg_resources.working_set, key=lambda d: d.project_name.lower())
             with open(req_path, "w", encoding="utf-8") as f:
                 for d in dists:

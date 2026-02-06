@@ -14,7 +14,6 @@ import pandas as pd
 from typing import Dict, Tuple, Any, Optional, List
 from sklearn.preprocessing import LabelEncoder
 from scipy.sparse import csr_matrix, save_npz, load_npz
-import pkg_resources
 import subprocess
 import sys
 
@@ -411,6 +410,7 @@ class DataPipeline:
 
             try:
                 # Use pkg_resources to list installed distributions
+                import pkg_resources
                 dists = sorted(pkg_resources.working_set, key=lambda d: d.project_name.lower())
                 with open(req_path, "w", encoding="utf-8") as f:
                     for d in dists:
