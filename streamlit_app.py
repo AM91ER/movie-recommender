@@ -17,9 +17,8 @@ st.set_page_config(
 )
 
 # ===========================================
-# PATH CONFIGURATION - Same pattern as Flight-price-predictor
+# PATH CONFIGURATION 
 # ===========================================
-# When streamlit_app.py is at root level, paths are simple
 DATA_PATH = "data/ml_ready"
 MODELS_PATH = "models"
 
