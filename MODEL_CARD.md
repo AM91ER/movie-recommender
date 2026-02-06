@@ -1,4 +1,4 @@
-# Model Card: CENIFLEX Movie Recommendation System
+# Model Card: CINEMAX Movie Recommendation System
 
 ## Model Details
 
@@ -6,7 +6,7 @@
 
 | Property | Value |
 |----------|-------|
-| **Model Name** | CENIFLEX Hybrid Recommender |
+| **Model Name** | CINEMAX Hybrid Recommender |
 | **Version** | 1.0.0 |
 | **Type** | Hybrid Recommendation System |
 | **Framework** | NumPy, SciPy, Scikit-learn |
@@ -297,7 +297,7 @@ HYBRID_ALPHA = 0.5
 ## Contact
 
 For questions or concerns about this model:
-- **Email**: amertarek@example.com
+- **Amer Tarek**: [Linkedin](https://www.linkedin.com/in/aamer-tarek/)
 - **GitHub Issues**: [Report an issue](https://github.com/yourusername/ceniflex/issues)
 
 ---
