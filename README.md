@@ -242,8 +242,8 @@ R ≈ U × Σ × V^T + μ + b_u + b_i
 ### Docker
 
 ```bash
-docker build -t ceniflex .
-docker run -p 8501:8501 ceniflex
+docker build -t cinemax .
+docker run -p 8501:8501 cinemax
 ```
 
 ---
