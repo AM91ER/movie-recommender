@@ -459,7 +459,7 @@ def render_user_profile(user_idx, n_movies, top_genres):
 # MAIN APP
 # ===========================================
 def main():
-    st.markdown('<h1 class="main-title">🎬 CENIFLEX</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 class="main-title">🎬 CINEMAX</h1>', unsafe_allow_html=True)
     
     # Load data and models
     try:
