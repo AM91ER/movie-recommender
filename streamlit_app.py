@@ -17,9 +17,8 @@ st.set_page_config(
 )
 
 # ===========================================
-# PATH CONFIGURATION - Same pattern as Flight-price-predictor
+# PATH CONFIGURATION 
 # ===========================================
-# When streamlit_app.py is at root level, paths are simple
 DATA_PATH = "data/ml_ready"
 MODELS_PATH = "models"
 
@@ -29,7 +28,7 @@ TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 PLACEHOLDER_IMAGE = "https://via.placeholder.com/300x450/1a1a1a/808080?text=No+Poster"
 
 # ===========================================
-# CUSTOM CSS - Netflix Style
+# CUSTOM CSS 
 # ===========================================
 st.markdown("""
 <style>
