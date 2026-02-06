@@ -17,19 +17,19 @@ st.set_page_config(
 )
 
 # ===========================================
-# PATH CONFIGURATION - Same pattern as Flight-price-predictor
+# PATH CONFIGURATION 
 # ===========================================
 # When streamlit_app.py is at root level, paths are simple
 DATA_PATH = "data/ml_ready"
 MODELS_PATH = "models"
 
-# TMDB API (optional - add your key for posters)
+# TMDB API 
 TMDB_API_KEY = "f3adb516d0653f376c48d41ecc4f6551"
 TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500"
 PLACEHOLDER_IMAGE = "https://via.placeholder.com/300x450/1a1a1a/808080?text=No+Poster"
 
 # ===========================================
-# CUSTOM CSS - Netflix Style
+# CUSTOM CSS 
 # ===========================================
 st.markdown("""
 <style>
@@ -178,9 +178,7 @@ def get_star_rating(rating):
 # ===========================================
 @st.cache_data
 def load_data():
-    """Load data files - memory optimized."""
-    import gc
-    
+    """Load data files."""
     with open(os.path.join(DATA_PATH, "mappings.pkl"), "rb") as f:
         mappings = pickle.load(f)
     
@@ -188,25 +186,13 @@ def load_data():
         stats = pickle.load(f)
     
     movies_df = pd.read_parquet(os.path.join(DATA_PATH, "movies_train.parquet"))
-    
-    # Load only needed columns and convert to smaller dtypes
-    train_df = pd.read_parquet(
-        os.path.join(DATA_PATH, "train.parquet"),
-        columns=['user_idx', 'item_idx', 'rating']
-    )
-    # Reduce memory by using smaller dtypes
-    train_df['user_idx'] = train_df['user_idx'].astype('int32')
-    train_df['item_idx'] = train_df['item_idx'].astype('int32')
-    train_df['rating'] = train_df['rating'].astype('float32')
+    train_df = pd.read_parquet(os.path.join(DATA_PATH, "train.parquet"),
+                               columns=['user_idx', 'item_idx', 'rating'])
     
     with open(os.path.join(DATA_PATH, "eval_data.pkl"), "rb") as f:
         eval_data = pickle.load(f)
     
     genre_features = np.load(os.path.join(DATA_PATH, "genre_features.npy"))
-    # Convert to float32 to save memory
-    genre_features = genre_features.astype('float32')
-    
-    gc.collect()
     
     return mappings, stats, movies_df, train_df, eval_data, genre_features
 
@@ -223,18 +209,12 @@ def load_models():
 
 @st.cache_data
 def build_user_item_ratings(_train_df):
-    """Build user-item ratings lookup - memory optimized."""
-    # More memory-efficient approach without groupby().apply()
-    user_item_ratings = {}
-    for user_idx, item_idx, rating in zip(
-        _train_df['user_idx'].values,
-        _train_df['item_idx'].values.astype(int),
-        _train_df['rating'].values
-    ):
-        if user_idx not in user_item_ratings:
-            user_item_ratings[user_idx] = {}
-        user_item_ratings[user_idx][item_idx] = rating
-    return user_item_ratings
+    """Build user-item ratings lookup."""
+    grouped = _train_df.groupby('user_idx').apply(
+        lambda x: dict(zip(x['item_idx'].astype(int), x['rating'])),
+        include_groups=False
+    )
+    return grouped.to_dict()
 
 @st.cache_data
 def get_user_top_genres(_train_df, _movies_df, user_idx, top_n=3):
