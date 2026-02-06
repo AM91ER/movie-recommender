@@ -62,7 +62,7 @@ A hybrid movie recommendation system combining **Matrix Factorization (SVD)** an
 ## 🗂️ Project Structure
 
 ```
-ceniflex/
+cinemax/
 ├── app/                          # Streamlit application
 │   ├── __init__.py
 │   └── app.py                    # Web UI
@@ -86,8 +86,7 @@ ceniflex/
 │   ├── model.py                  # Model classes, hyperparameters
 │   ├── train.py                  # Training, evaluation
 │   ├── inference.py              # Load model, predictions
-│   └── utils.py                  # Constants, helper functions
-├── assets/                       # Images for README
+│   └── utils.py                  # Constants, helper functions               
 ├── main.py                       # Entry point for full pipeline
 ├── requirements.txt              # Dependencies with versions
 ├── MODEL_CARD.md                 # Model documentation
@@ -238,7 +237,7 @@ R ≈ U × Σ × V^T + μ + b_u + b_i
    api_key = "your_api_key_here"
    ```
 
-**Live Demo:** [https://ceniflex.streamlit.app](https://ceniflex.streamlit.app)
+**Live Demo:** [https://cinemax.streamlit.app](https://cinemax.streamlit.app/)
 
 ### Docker
 
@@ -313,9 +312,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📧 Contact
 
-**Amer Tarek** - [LinkedIn](https://linkedin.com/in/yourprofile)
+**Amer Tarek** - [LinkedIn](https://www.linkedin.com/in/aamer-tarek/)
 
-Project Link: [https://github.com/yourusername/ceniflex](https://github.com/yourusername/ceniflex)
 
 ---
 
