@@ -26,6 +26,13 @@ import sys
 import subprocess
 import pkg_resources
 
+# Ensure repo root is on sys.path so local package `src` is importable
+# (Streamlit Cloud often runs apps from a subdirectory which can omit
+# the repository root from `sys.path`). Insert repo root at front.
+repo_root = os.path.dirname(os.path.abspath(__file__))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+
 from src.data_pipeline import DataPipeline
 from src.model import (
     SVDConfig, 

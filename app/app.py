@@ -4,6 +4,7 @@ import numpy as np
 import pickle
 from sklearn.metrics.pairwise import cosine_similarity
 import os
+import sys
 import requests
 from functools import lru_cache
 
@@ -24,6 +25,11 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Project root is one level up from app/
 PROJECT_ROOT = os.path.dirname(APP_DIR)
+
+# Ensure project root is on sys.path so local package `src` is importable
+# when Streamlit runs the app from within the `app/` folder.
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
 
 # Define paths
 DATA_PATH = os.path.join(PROJECT_ROOT, "data", "ml_ready")
