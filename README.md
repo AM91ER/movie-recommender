@@ -1,4 +1,4 @@
-# 🎬 CENIFLEX - Movie Recommendation System
+# 🎬 CINEMAX - Movie Recommendation System
 
 [![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://ceniflex.streamlit.app)
 [![Python 3.12](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
