@@ -174,7 +174,7 @@ def get_star_rating(rating):
     return "★" * full_stars + "½" * half_star + "☆" * empty_stars
 
 # ===========================================
-# DATA LOADING (WITH 10% SEQUENTIAL SAMPLING)
+# DATA LOADING 
 # ===========================================
 @st.cache_data
 def load_data():
@@ -192,8 +192,7 @@ def load_data():
                                columns=['user_idx', 'item_idx', 'rating'])
     
     # =============================================
-    # MEMORY OPTIMIZATION: Keep first 10% of users
-    # Sequential: user 0, 1, 2, ... up to 20094
+    # MEMORY OPTIMIZATION: 
     # =============================================
     max_user_idx = 20094  # First 10% of users
     train_df = train_df[train_df['user_idx'] <= max_user_idx]
