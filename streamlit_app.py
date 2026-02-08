@@ -174,11 +174,11 @@ def get_star_rating(rating):
     return "★" * full_stars + "½" * half_star + "☆" * empty_stars
 
 # ===========================================
-# DATA LOADING 
+# DATA LOADING (WITH 10% SEQUENTIAL SAMPLING)
 # ===========================================
 @st.cache_data
 def load_data():
-    """Load data files with first 10% of users."""
+    """Load data files with first 10% of users (0-20094) for memory efficiency."""
     with open(os.path.join(DATA_PATH, "mappings.pkl"), "rb") as f:
         mappings = pickle.load(f)
     
@@ -192,7 +192,8 @@ def load_data():
                                columns=['user_idx', 'item_idx', 'rating'])
     
     # =============================================
-    # MEMORY OPTIMIZATION: 
+    # MEMORY OPTIMIZATION: Keep first 10% of users
+    # Sequential: user 0, 1, 2, ... up to 20094
     # =============================================
     max_user_idx = 20094  # First 10% of users
     train_df = train_df[train_df['user_idx'] <= max_user_idx]
@@ -513,9 +514,14 @@ def main():
         
         try:
             user_idx = int(user_input)
-            user_idx = max(0, min(user_idx, max_user_idx))
         except:
             user_idx = 100
+        
+        # Validate user is in sample range
+        if user_idx < 0 or user_idx > max_user_idx:
+            st.error(f"❌ ERROR 404: User not found")
+            st.info(f"Please enter a User ID between 0 and {max_user_idx}")
+            return
         
         if st.button("🎲 Random User"):
             user_idx = np.random.randint(0, max_user_idx + 1)
