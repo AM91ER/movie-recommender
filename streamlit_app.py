@@ -174,11 +174,11 @@ def get_star_rating(rating):
     return "★" * full_stars + "½" * half_star + "☆" * empty_stars
 
 # ===========================================
-# DATA LOADING
+# DATA LOADING (WITH 10% SAMPLING)
 # ===========================================
 @st.cache_data
 def load_data():
-    """Load data files."""
+    """Load data files with 10% user sampling for memory efficiency."""
     with open(os.path.join(DATA_PATH, "mappings.pkl"), "rb") as f:
         mappings = pickle.load(f)
     
@@ -186,11 +186,32 @@ def load_data():
         stats = pickle.load(f)
     
     movies_df = pd.read_parquet(os.path.join(DATA_PATH, "movies_train.parquet"))
+    
+    # Load full train data first
     train_df = pd.read_parquet(os.path.join(DATA_PATH, "train.parquet"),
                                columns=['user_idx', 'item_idx', 'rating'])
     
+    # =============================================
+    # MEMORY OPTIMIZATION: Sample 10% of users
+    # =============================================
+    np.random.seed(42)  # For reproducibility
+    unique_users = train_df['user_idx'].unique()
+    sample_size = max(1000, len(unique_users) // 10)  # At least 1000 users
+    sampled_users = np.random.choice(unique_users, size=sample_size, replace=False)
+    train_df = train_df[train_df['user_idx'].isin(sampled_users)]
+    
+    # Store sampled users info in mappings
+    mappings['sampled_users'] = set(sampled_users)
+    mappings['n_users_sampled'] = len(sampled_users)
+    
     with open(os.path.join(DATA_PATH, "eval_data.pkl"), "rb") as f:
         eval_data = pickle.load(f)
+    
+    # Filter eval_data to only include sampled users
+    eval_data['user_positive_items'] = {
+        k: v for k, v in eval_data['user_positive_items'].items() 
+        if k in sampled_users
+    }
     
     genre_features = np.load(os.path.join(DATA_PATH, "genre_features.npy"))
     
@@ -488,24 +509,30 @@ def main():
     user_positive = eval_data["user_positive_items"]
     item_popularity = stats["item_popularity"]
     
+    # Get sampled users list for selection
+    sampled_users = mappings.get('sampled_users', set(range(n_users)))
+    sampled_users_list = sorted(list(sampled_users))
+    n_sampled = len(sampled_users_list)
+    
     # Sidebar
     with st.sidebar:
         st.markdown("### ⚙️ Settings")
         
-        user_input = st.text_input("Enter User ID", value="100", 
-                                   help=f"Enter 0 to {n_users-1}")
-        
-        try:
-            user_idx = int(user_input)
-            user_idx = max(0, min(user_idx, n_users - 1))
-        except:
-            user_idx = 100
+        # User selection dropdown (only sampled users)
+        default_idx = min(50, n_sampled - 1)
+        user_idx = st.selectbox(
+            "Select User ID",
+            options=sampled_users_list,
+            index=default_idx,
+            help=f"Choose from {n_sampled:,} available users (10% sample)"
+        )
         
         if st.button("🎲 Random User"):
-            user_idx = np.random.randint(0, n_users)
+            user_idx = int(np.random.choice(sampled_users_list))
             st.session_state['user_idx'] = user_idx
+            st.rerun()
         
-        if 'user_idx' in st.session_state:
+        if 'user_idx' in st.session_state and st.session_state['user_idx'] in sampled_users:
             user_idx = st.session_state['user_idx']
         
         st.markdown("---")
@@ -521,7 +548,7 @@ def main():
             alpha = hybrid_config["best_alpha"]
         
         st.markdown("---")
-        st.caption(f"👥 {n_users:,} users | 🎬 {n_items:,} movies")
+        st.caption(f"👥 {n_sampled:,} users (10% sample) | 🎬 {n_items:,} movies")
     
     # User profile
     user_movies = train_df[train_df["user_idx"] == user_idx]
